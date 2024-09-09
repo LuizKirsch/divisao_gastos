@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HomeController;
 
 Route::get('/welcome', function () {
     return view('welcome');
@@ -15,8 +16,6 @@ Route::post('/login', [AuthController::class, 'login_action'])->name('user.login
 
 Route::middleware('auth')->group(function () {
     Route::prefix('')->name('user.')->group(function () {
-        Route::get('/', function () {
-            return 'teste';
-        })->name('index');
+        Route::get('/', [HomeController::class, 'index'])->name('index');
     });
 });
