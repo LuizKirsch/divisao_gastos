@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Event;
+use App\Models\EventUser;
+use App\Models\User;
 
 class EventController extends Controller
 {
@@ -24,7 +27,8 @@ class EventController extends Controller
      */
     public function create()
     {
-        //
+        $users = User::getAllExceptLoggedIn(); // Obtém todos os usuários
+        return view('user.events.create', compact('users'));
     }
 
     /**
@@ -32,7 +36,35 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'string|nullable',
+            'user_ids' => 'array|nullable',
+            'user_ids.*' => 'exists:users,id',
+        ]);
+
+        $user = Auth::user();
+
+        $event = Event::create([
+            'name' => $validatedData['name'],
+            'description' => $validatedData['description'],
+            'user_id' => $user->id,
+        ]);
+
+        $now = now();
+        $eventUsers = [
+            ['event_id' => $event->id, 'user_id' => $user->id, 'created_at' => $now, 'updated_at' => $now]
+        ];
+
+        if (isset($validatedData['user_ids'])) {
+            foreach ($validatedData['user_ids'] as $userId) {
+                $eventUsers[] = ['event_id' => $event->id, 'user_id' => $userId, 'created_at' => $now, 'updated_at' => $now];
+            }
+        }
+
+        $insertUsersInEvent = EventUser::insert($eventUsers);
+
+        return redirect()->route('user.event.index')->with('success', 'Evento criado com sucesso!');
     }
 
     /**
