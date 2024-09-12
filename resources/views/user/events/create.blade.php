@@ -27,7 +27,7 @@
 
             <div class="form-group mb-3">
                 <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Selecionar Usuários
                     </button>
                     <ul class="dropdown-menu">

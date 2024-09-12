@@ -1,6 +1,6 @@
 @extends('components.layout.app')
 
-@section('title', 'Home')
+@section('title', 'Eventos')
 
 @section('content')
     <div class="container">
