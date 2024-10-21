@@ -7,8 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Contracts\Auth\CanResetPassword;
+use Illuminate\Support\Facades\URL;
+use App\Notifications\PasswordResetNotification;
 
-class User extends Authenticatable
+class User extends Authenticatable implements CanResetPassword
 {
     use HasFactory, Notifiable;
 
@@ -58,5 +61,13 @@ class User extends Authenticatable
         return self::where('id', '!=', $loggedUserId)->get();
     }
 
+    //////////////////
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $url = URL::to('/reset-password/' . $token);
+
+        $this->notify(new PasswordResetNotification($url));
+    }
 
 }

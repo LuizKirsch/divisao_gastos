@@ -43,28 +43,33 @@ class EventController extends Controller
             'user_ids.*' => 'exists:users,id',
         ]);
 
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
 
-        $event = Event::create([
-            'name' => $validatedData['name'],
-            'description' => $validatedData['description'],
-            'user_id' => $user->id,
-        ]);
+            $event = Event::create([
+                'name' => $validatedData['name'],
+                'description' => $validatedData['description'] ?? null,
+                'user_id' => $user->id,
+            ]);
 
-        $now = now();
-        $eventUsers = [
-            ['event_id' => $event->id, 'user_id' => $user->id, 'created_at' => $now, 'updated_at' => $now]
-        ];
+            $now = now();
+            $eventUsers = [
+                ['event_id' => $event->id, 'user_id' => $user->id, 'created_at' => $now, 'updated_at' => $now]
+            ];
 
-        if (isset($validatedData['user_ids'])) {
-            foreach ($validatedData['user_ids'] as $userId) {
-                $eventUsers[] = ['event_id' => $event->id, 'user_id' => $userId, 'created_at' => $now, 'updated_at' => $now];
+            if (isset($validatedData['user_ids'])) {
+                foreach ($validatedData['user_ids'] as $userId) {
+                    $eventUsers[] = ['event_id' => $event->id, 'user_id' => $userId, 'created_at' => $now, 'updated_at' => $now];
+                }
             }
+
+            EventUser::insert($eventUsers);
+
+            return redirect()->route('user.event.index')->with('success', 'Evento criado com sucesso!');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['Erro ao criar o evento. Por favor, tente novamente.']);
         }
-
-        $insertUsersInEvent = EventUser::insert($eventUsers);
-
-        return redirect()->route('user.event.index')->with('success', 'Evento criado com sucesso!');
     }
 
     /**
